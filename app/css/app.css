@@ -1,3 +1,13 @@
+#header
+{
+  background-color: lightblue;
+}
+.header
+{
+  display: inline;
+  vertical-align: bottom;
+}
+
 /* app css stylesheet */
 
 .menu {
