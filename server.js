@@ -15,8 +15,8 @@ var app = express();
 // 	res.send(db[0].results[1].snippet);
 // });
 
-// ensures that we p1 send route, and p2 look for static files
-app.use(app.router);
+// // ensures that we p1 send route, and p2 look for static files
+// app.use(app.router);
 
 // this handles requests for static content 
 // as organized in the file structure
@@ -25,5 +25,6 @@ app.use(express.static(__dirname + '/app'));
 
 
 
-app.listen(8080);
-console.log('Server running on port 8080...');
+app.listen(8080, function() {
+	console.log('Server running on port 8080...');
+});
