@@ -50,6 +50,11 @@ function SearchCtrl($scope, $http) {
     },
     onPlayerStateChange: function(e) {
     	console.log('onPlayerStateChange', e);
+
+    	// Player in state 'stopped'
+    	if (e.data === 0) {
+    		$scope._next();
+    	}
     }
 
   };
@@ -82,10 +87,15 @@ function SearchCtrl($scope, $http) {
 			//$scope.results = data.results.trackmatches.track;
 			var title = data.results.trackmatches.track[0].name;
 			var artist = data.results.trackmatches.track[0].artist;
+			$scope.results[0] = {
+				title : title,
+				artist : artist,
+				youtubeId : undefined
+			};
 
 			$http.get( composeLastFMTrackGetSimilar(title, artist, 25) ).success(function (data2) {
 				console.log('lastfm api call 2 worked', data2);
-				$.each(data2.similartracks.track, function(index, el) {
+				angular.forEach(data2.similartracks.track, function(el) {
 					$scope.results.push({
 						title : el.name,
 						artist : el.artist.name
@@ -111,16 +121,29 @@ function SearchCtrl($scope, $http) {
 	};
 
 	$scope.skip = function() {
-		$scope.playIndex++;
+		// $scope.playIndex++;
+		// if (!player) {
+		// 	return;
+		// }
+		// if (!$scope.results[$scope.playIndex].youtubeId) {
+		// 	$scope.getYoutubeIds();
+		// }
+
+		// player.loadVideoById($scope.results[$scope.playIndex].youtubeId);
+		$scope._next();
+	};
+
+	$scope._next = function() {
 		if (!player) {
 			return;
 		}
+		$scope.playIndex++;
 		if (!$scope.results[$scope.playIndex].youtubeId) {
 			$scope.getYoutubeIds();
 		}
 
 		player.loadVideoById($scope.results[$scope.playIndex].youtubeId);
-	};
+	}
 
 
 
