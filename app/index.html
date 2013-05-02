@@ -20,7 +20,9 @@
     <span><h1 id="title" class="header">Music</h1></span>
   </div>
   <div ng-controller="SearchCtrl">
-    <div id="youtubePlayer">
+    <div class="youtubeContainer">
+      <div id="youtubePlayer">
+      </div>
     </div>
     <input type="text" ng-model="searchText" ng-model-instant>
     <button ng-click="search()">Search</button>

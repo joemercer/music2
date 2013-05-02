@@ -84,7 +84,7 @@ function SearchCtrl($scope, $http) {
 
 		$http.get( composeLastFMTrackSearch($scope.searchText) ).success(function (data) {
 			console.log('lastfm api call worked', data);
-			//$scope.results = data.results.trackmatches.track;
+
 			var title = data.results.trackmatches.track[0].name;
 			var artist = data.results.trackmatches.track[0].artist;
 			$scope.results[0] = {
@@ -109,27 +109,29 @@ function SearchCtrl($scope, $http) {
 
 	$scope.play = function() {
 		if (!$scope.results[0].youtubeId) {
-			$scope.getYoutubeIds();
+			$scope.getYoutubeIds(0, function() {
+				if (!player) {
+					MyYoutubeObject.load(container, $scope.results[0].youtubeId);
+					$('.youtubeContainer').addClass('youtubeContainer-active');
+				}
+				else {
+					player.loadVideoById($scope.results[0].youtubeId);
+				}
+			});
 		}
-
-		if (!player) {
-			MyYoutubeObject.load(container, $scope.results[0].youtubeId);
+		else {
+			if (!player) {
+				MyYoutubeObject.load(container, $scope.results[0].youtubeId);
+				$('.youtubeContainer').addClass('youtubeContainer-active');
+			}
+			else {
+				player.loadVideoById($scope.results[0].youtubeId);
+			}
 		}
-
-		$scope.getYoutubeIds();
 
 	};
 
 	$scope.skip = function() {
-		// $scope.playIndex++;
-		// if (!player) {
-		// 	return;
-		// }
-		// if (!$scope.results[$scope.playIndex].youtubeId) {
-		// 	$scope.getYoutubeIds();
-		// }
-
-		// player.loadVideoById($scope.results[$scope.playIndex].youtubeId);
 		$scope._next();
 	};
 
@@ -139,21 +141,29 @@ function SearchCtrl($scope, $http) {
 		}
 		$scope.playIndex++;
 		if (!$scope.results[$scope.playIndex].youtubeId) {
-			$scope.getYoutubeIds();
+			$scope.getYoutubeIds($scope.playIndex, function() {
+				player.loadVideoById($scope.results[$scope.playIndex].youtubeId);
+			});
+		}
+		else {
+			player.loadVideoById($scope.results[$scope.playIndex].youtubeId);
 		}
 
-		player.loadVideoById($scope.results[$scope.playIndex].youtubeId);
 	}
 
 
 
 
 
-	$scope.getYoutubeIds = function() {
-		angular.forEach($scope.results, function(result) {
+	$scope.getYoutubeIds = function(atIndex, doCallback) {
+		angular.forEach($scope.results, function(result, index) {
 			if (!result.youtubeId) {
 				$http.jsonp( composeYoutubeVideoSearch(result.title, result.artist) ).success(function (data) {
 					result.youtubeId = data.feed.entry[0].media$group.yt$videoid.$t;
+
+					if (index === atIndex) {
+						doCallback();
+					}
 				});
 			}
 		});
